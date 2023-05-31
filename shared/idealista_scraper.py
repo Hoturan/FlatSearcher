@@ -1,19 +1,23 @@
 import requests
 from bs4 import BeautifulSoup
 from shared.config import settings
-from shared.flat_scraper import Scraper
+from shared.flat_scraper import FlatScraper
 from shared.logger import logger
 
 
-class IdealistaScraper(Scraper):
+class IdealistaScraper(FlatScraper):
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-        "cookie": "SESSION=88b3e9dc5e9b8b33~3c9cc824-0077-44e9-a045-74e00b9025cb",
+        "cookie": settings.session_id,
         "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
     }
 
-    def scrape_link(url: str):
-        return
+    def scrape_idealista_link(self, url: str) -> BeautifulSoup:
+        assert url.startswith("www.idealista.com")
+        response = self.get_request_with_custom_headers(url)
+        parsed_response = self.parse_request_response(response)
+        self.check_if_parsed_response_is_correct(parsed_response)
+        return parsed_response
 
     def check_if_parsed_response_is_correct(self, parsed_response: BeautifulSoup):
         try:
@@ -40,3 +44,6 @@ class IdealistaScraper(Scraper):
 
     def parse_request_response(response: requests.models.Response) -> BeautifulSoup:
         return BeautifulSoup(response)
+
+class IdealistaPageParser():
+    

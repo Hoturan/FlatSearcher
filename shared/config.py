@@ -3,14 +3,14 @@ from dynaconf import Dynaconf
 
 settings = Dynaconf(
     settings_files=[
-        "devops/dynaconf/settings.toml",
-        "devops/dynaconf/secrets.toml",
+        "devops/settings.toml",
+        "devops/.secrets.toml",
     ],  # Paths to globs or any toml|yaml|ini|json|py
     environments=True,  # Enable layered environments (Testind, DEV, SIT, PROD)
     load_dotenv=True,  # Loads envars from a .env file
     envar_prefix=False,  # variables exoirted as `DYNACONF_FOO=bar` becomes `settings.FOO=bar`
     env_switcher="ENV_FOR_DYNACONF",  # Exported variable to use for environment switch
-    dotenv_path="devops/dynaconf/.env",  # Path to the envirnoments file
+    dotenv_path="devops/.env",  # Path to the envirnoments file
 )
 
 
@@ -31,5 +31,6 @@ if __name__ == "__main__":
     # Used only as validation when running as a script
 
     assert settings.env_for_dynaconf
+    assert settings.session_id
 
     print("All assertions passed.")
