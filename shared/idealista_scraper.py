@@ -1,4 +1,5 @@
 import requests
+import re
 from typing import List
 from bs4 import BeautifulSoup, element
 
@@ -19,7 +20,7 @@ class IdealistaScraper(FlatScraper):
         try:
             assert url.startswith("https://www.idealista.com")
             response = self.get_request_with_custom_headers(url)
-            parsed_response = self.parse_request_response(response)
+            parsed_response = self.parse_request_response(response.text)
             self.check_if_parsed_response_is_correct(parsed_response)
             return parsed_response
         except AssertionError as e:
@@ -50,10 +51,8 @@ class IdealistaScraper(FlatScraper):
             logger.error(f"Exception {e}, timeout.")
             raise requests.exceptions.Timeout
 
-    def parse_request_response(
-        self, response: requests.models.Response
-    ) -> BeautifulSoup:
-        return BeautifulSoup(response.text, features="html.parser")
+    def parse_request_response(self, response_text: str) -> BeautifulSoup:
+        return BeautifulSoup(response_text, features="html.parser")
 
 
 class IdealistaPageParser:
@@ -79,7 +78,11 @@ class IdealistaPageParser:
     }
 
     """ As this information is all under the same tag, I extract it as a list. This dictionary manages the location of the info"""
-    details_tag_index_dictionary = {"rooms": 1, "space": 2, "floor_summary": 3}
+    details_tag_index_dictionary = {
+        FlatModule.NUMBER_OF_ROOMS: 1,
+        FlatModule.SPACE: 2,
+        FlatModule.SUMMARY: 3,
+    }
 
     def get_flats_from_parsed_response(
         self, parsed_response: BeautifulSoup
@@ -114,15 +117,22 @@ class IdealistaPageParser:
     ) -> List[FlatModule.Flat]:
         list_of_flats = []
         for flat_container in flat_container_list:
-            price = self.get_data_from_tag(FlatModule.PRICE, flat_container)
-            name = self.get_data_from_tag(FlatModule.NAME, flat_container)
-            number_of_rooms = self.get_data_from_tag(
-                FlatModule.NUMBER_OF_ROOMS, flat_container
-            )
-            space = self.get_data_from_tag(FlatModule.SPACE, flat_container)
-            summary = self.get_data_from_tag(FlatModule.SUMMARY, flat_container)
-            link = self.get_data_from_tag(FlatModule.LINK, flat_container)
-            description = self.get_data_from_tag(FlatModule.DESCRIPTION, flat_container)
+            try:
+                flat = self.extract_items_from_flat(flat_container)
+                list_of_flats.append(flat)
+            except:
+                continue
+        return list_of_flats
+
+    def extract_items_from_flat(self, flat_container) -> FlatModule.Flat:
+        try:
+            price = self.get_data_from_tag(flat_container, FlatModule.PRICE)
+            name = self.get_data_from_tag(flat_container, FlatModule.NAME)
+            number_of_rooms = self.get_data_from_tag(flat_container, FlatModule.NAME)
+            space = self.get_data_from_tag(flat_container, FlatModule.SPACE)
+            summary = self.get_data_from_tag(flat_container, FlatModule.SUMMARY)
+            link = self.get_data_from_tag(flat_container, FlatModule.LINK)
+            description = self.get_data_from_tag(flat_container, FlatModule.DESCRIPTION)
 
             flat = FlatModule.Flat(
                 price=price,
@@ -133,20 +143,23 @@ class IdealistaPageParser:
                 link=link,
                 description=description,
             )
-            list_of_flats.append(flat)
-
-        return list_of_flats
+        except Exception as e:
+            logger.error(f"Exception {e}, article found is not a flat.")
+            raise e
 
     def get_data_from_tag(self, flat_container: element.Tag, flat_item: str):
         found_data = flat_container.find(
             self.item_section_dictionary[flat_item],
-            {"class": self.item_tag_dictionary[flat_container]},
+            {"class": self.item_tag_dictionary[flat_item]},
         )
 
         # if it is one of the details elements, send the corresponding one
-        if self.item_tag_dictionary[flat_container] == "item-detail-char":
+        if self.item_tag_dictionary[flat_item] == "item-detail-char":
             return found_data.text.split("\n")[
                 self.details_tag_index_dictionary[flat_item]
             ]
         else:
             return found_data.text.replace("\n", "")
+
+    def get_currency_from_price_string(price_string):
+        re.sub(r"[a-zA-Z]", "", price_string).strip()[-1]
