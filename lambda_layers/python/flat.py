@@ -5,7 +5,7 @@ from enum import Enum
 
 NAME = "name"
 PRICE = "price"
-PRICE_CURRENCY = "p[rice_currency"
+PRICE_CURRENCY = "price_currency"
 NUMBER_OF_ROOMS = "number_of_rooms"
 SPACE = "space"
 LINK = "link"

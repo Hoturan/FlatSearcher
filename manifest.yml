@@ -1,0 +1,11 @@
+# File to define the distribution .zip for juni
+
+functions:
+  # Name the zip file you want juni to create
+  lambda_function:
+    # The dependencies of the router function.
+    requirements: ./requirements.txt
+    # Include this file in the generated zip artifact.
+    include:
+    - ./lambda_function
+    - ./shared

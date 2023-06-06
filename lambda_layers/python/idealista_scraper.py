@@ -3,10 +3,10 @@ import re
 from typing import List
 from bs4 import BeautifulSoup, element
 
-from shared.config import settings
-from shared.flat_scraper import FlatScraper
-from shared.logger import logger
-import shared.flat as FlatModule
+from lambda_layers.python.config import settings
+from lambda_layers.python.flat_scraper import FlatScraper
+from lambda_layers.python.logger import logger
+import lambda_layers.python.flat as FlatModule
 
 
 class IdealistaScraper(FlatScraper):
