@@ -16,23 +16,29 @@
 from __future__ import print_function
 import pandas as pd
 import json
+import tomli
 
 from lambda_layers.python.flat_scraper import FlatScraper
 
 print("Loading function")
 
 
+def get_lambda_configs():
+    with open("function_config.toml", mode="rb") as fb:
+        config = tomli.load(fb)
+    return config
+
+
 def lambda_handler(event, context):
     count = event["count"]
     data = []
+    config = get_lambda_configs()
 
-    for i in range(count):
-        data.append(i)
-    df = pd.DataFrame(data, columns=["Numbers"])
-    print("Data")
-    print(df)
+    scrape_locations = config["scrape_locations"]
 
     return {
         "statusCode": 200,
-        "body": json.dumps({"message": "Success", "data": count}),
+        "body": json.dumps(
+            {"message": "Success", "data": json.dumps(scrape_locations)}
+        ),
     }

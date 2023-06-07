@@ -58,17 +58,19 @@ class IdealistaScraper(FlatScraper):
 class IdealistaPageParser:
     # TODO this should not be here, IdelistaPageParser does not need to know the concepts dealt with by a Flat
     item_tag_dictionary = {
+        FlatModule.NAME: "item-link",
         FlatModule.PRICE: "price-row",
-        FlatModule.NAME: "item-description description",
+        FlatModule.PRICE_CURRENCY: "price-row",
         FlatModule.NUMBER_OF_ROOMS: "item-detail-char",
         FlatModule.SPACE: "item-detail-char",
-        FlatModule.SUMMARY: "item-detail-char",
         FlatModule.LINK: "item-link",
         FlatModule.DESCRIPTION: "item-description description",
+        FlatModule.SUMMARY: "item-detail-char",
     }
 
     item_section_dictionary = {
         FlatModule.PRICE: "div",
+        FlatModule.PRICE_CURRENCY: "div",
         FlatModule.NAME: "div",
         FlatModule.NUMBER_OF_ROOMS: "div",
         FlatModule.SPACE: "div",
@@ -127,8 +129,13 @@ class IdealistaPageParser:
     def extract_items_from_flat(self, flat_container) -> FlatModule.Flat:
         try:
             price = self.get_data_from_tag(flat_container, FlatModule.PRICE)
+            price_currency = self.get_data_from_tag(
+                flat_container, FlatModule.PRICE_CURRENCY
+            )
             name = self.get_data_from_tag(flat_container, FlatModule.NAME)
-            number_of_rooms = self.get_data_from_tag(flat_container, FlatModule.NAME)
+            number_of_rooms = self.get_data_from_tag(
+                flat_container, FlatModule.NUMBER_OF_ROOMS
+            )
             space = self.get_data_from_tag(flat_container, FlatModule.SPACE)
             summary = self.get_data_from_tag(flat_container, FlatModule.SUMMARY)
             link = self.get_data_from_tag(flat_container, FlatModule.LINK)
@@ -136,6 +143,7 @@ class IdealistaPageParser:
 
             flat = FlatModule.Flat(
                 price=price,
+                price_currency=price_currency,
                 name=name,
                 number_of_rooms=number_of_rooms,
                 space=space,
@@ -143,6 +151,7 @@ class IdealistaPageParser:
                 link=link,
                 description=description,
             )
+            return flat
         except Exception as e:
             logger.error(f"Exception {e}, article found is not a flat.")
             raise e
@@ -158,8 +167,17 @@ class IdealistaPageParser:
             return found_data.text.split("\n")[
                 self.details_tag_index_dictionary[flat_item]
             ]
+        elif flat_item == FlatModule.PRICE_CURRENCY:
+            return self.get_currency_from_price_string(found_data.text)
+        elif flat_item == FlatModule.PRICE:
+            return self.get_value_from_price_string(found_data.text)
+        elif flat_item == FlatModule.LINK:
+            return found_data["href"]
         else:
             return found_data.text.replace("\n", "")
 
-    def get_currency_from_price_string(price_string):
-        re.sub(r"[a-zA-Z]", "", price_string).strip()[-1]
+    def get_currency_from_price_string(self, price_string):
+        return re.sub(r"[a-zA-Z]", "", price_string).strip()[-1]
+
+    def get_value_from_price_string(self, price_string):
+        return re.sub(r"[a-zA-Z]", "", price_string).strip()[:-1]

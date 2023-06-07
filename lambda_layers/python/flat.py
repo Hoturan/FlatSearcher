@@ -25,3 +25,15 @@ class Flat:
     summary: str
     link: str
     description: str
+
+    def to_json(self):
+        return {
+            NAME: self.name,
+            PRICE: self.price,
+            PRICE_CURRENCY: self.price_currency,
+            NUMBER_OF_ROOMS: self.number_of_rooms,
+            SPACE: self.space,
+            LINK: self.link,
+            DESCRIPTION: self.description,
+            SUMMARY: self.summary,
+        }

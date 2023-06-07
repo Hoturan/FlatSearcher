@@ -1,0 +1,6 @@
+scrape_locations = [
+    "/barcelona/sant-marti/el-poblenou/",
+    "/sant-cugat-del-valles-barcelona/",
+]
+
+idealista_url_root = "https://www.idealista.com/venta-viviendas"
