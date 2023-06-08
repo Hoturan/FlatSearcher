@@ -71,7 +71,7 @@ class IdealistaPageParser:
     item_section_dictionary = {
         FlatModule.PRICE: "div",
         FlatModule.PRICE_CURRENCY: "div",
-        FlatModule.NAME: "div",
+        FlatModule.NAME: "a",
         FlatModule.NUMBER_OF_ROOMS: "div",
         FlatModule.SPACE: "div",
         FlatModule.SUMMARY: "div",
