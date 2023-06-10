@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from collections import namedtuple
 from enum import Enum
 
-
+ID = "id"
 NAME = "name"
 PRICE = "price"
 PRICE_CURRENCY = "price_currency"
@@ -11,12 +11,12 @@ SPACE = "space"
 LINK = "link"
 DESCRIPTION = "description"
 SUMMARY = "summary"
-
+LOCATION = "location"
 
 @dataclass
 class Flat:
     """Class representing the attributes of a Flat"""
-
+    id: int
     name: str
     price: float
     price_currency: str
@@ -25,9 +25,11 @@ class Flat:
     summary: str
     link: str
     description: str
+    location: str = "Unknown"
 
     def to_json(self):
         return {
+            ID: self.id,
             NAME: self.name,
             PRICE: self.price,
             PRICE_CURRENCY: self.price_currency,
@@ -36,4 +38,5 @@ class Flat:
             LINK: self.link,
             DESCRIPTION: self.description,
             SUMMARY: self.summary,
+            LOCATION: self.location
         }

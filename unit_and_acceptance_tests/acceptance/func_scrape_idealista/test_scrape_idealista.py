@@ -1,0 +1,3 @@
+from lambda_layers.python.config import settings
+
+def test_scrape_idealista_endpoint

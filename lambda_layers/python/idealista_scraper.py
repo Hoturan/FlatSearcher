@@ -58,6 +58,7 @@ class IdealistaScraper(FlatScraper):
 class IdealistaPageParser:
     # TODO this should not be here, IdelistaPageParser does not need to know the concepts dealt with by a Flat
     item_tag_dictionary = {
+        FlatModule.ID: "item-link",
         FlatModule.NAME: "item-link",
         FlatModule.PRICE: "price-row",
         FlatModule.PRICE_CURRENCY: "price-row",
@@ -69,6 +70,7 @@ class IdealistaPageParser:
     }
 
     item_section_dictionary = {
+        FlatModule.ID: "a",
         FlatModule.PRICE: "div",
         FlatModule.PRICE_CURRENCY: "div",
         FlatModule.NAME: "a",
@@ -128,6 +130,7 @@ class IdealistaPageParser:
 
     def extract_items_from_flat(self, flat_container) -> FlatModule.Flat:
         try:
+            id = self.get_data_from_tag(flat_container, FlatModule.ID)
             price = self.get_data_from_tag(flat_container, FlatModule.PRICE)
             price_currency = self.get_data_from_tag(
                 flat_container, FlatModule.PRICE_CURRENCY
@@ -142,6 +145,7 @@ class IdealistaPageParser:
             description = self.get_data_from_tag(flat_container, FlatModule.DESCRIPTION)
 
             flat = FlatModule.Flat(
+                id=id,
                 price=price,
                 price_currency=price_currency,
                 name=name,
@@ -149,7 +153,7 @@ class IdealistaPageParser:
                 space=space,
                 summary=summary,
                 link=link,
-                description=description,
+                description=description
             )
             return flat
         except Exception as e:
@@ -173,6 +177,9 @@ class IdealistaPageParser:
             return self.get_value_from_price_string(found_data.text)
         elif flat_item == FlatModule.LINK:
             return found_data["href"]
+        elif flat_item == FlatModule.ID:
+            # splits the string "/inmueble/98978138/" and takes the id
+            return found_data["href"].split("/")[2]
         else:
             return found_data.text.replace("\n", "")
 

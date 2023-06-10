@@ -2,13 +2,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: Test local deployment of Lambda function
 Resources:
-  TestLambdaFunction:
+  ScrapeIdealistaFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
       Description: Test local deployment of Lambda function
       Runtime: python3.10
       Handler: lambda_function.lambda_handler
-      CodeUri: ./lambda_function
+      CodeUri: ./func_scrape_idealista
       Policies:
         - "AWSConfigRulesExecutionRole"
         - "AWSLambdaDynamoDBExecutionRole"
@@ -20,7 +20,7 @@ Resources:
     Properties:
           LayerName: shared_layer
           Description: Dependencies for sam lambda functions
-          ContentUri: shared/
+          ContentUri: ./lambda_layers/python
           CompatibleRuntimes:
             - python3.10
 
