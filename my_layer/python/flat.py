@@ -1,3 +1,6 @@
+"""
+Module containing all of the flat attributes as global variables and as a dataclass
+"""
 from dataclasses import dataclass
 
 ID = "id"
@@ -26,6 +29,12 @@ class Flat:
     location: str = "Unknown"
 
     def to_json(self):
+        """
+        Retruns flat attributes in dictionary/json shapre
+
+        Returns:
+            dict: dictionary object with all the attributes
+        """
         return {
             ID: self.id,
             NAME: self.name,

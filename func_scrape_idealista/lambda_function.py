@@ -22,22 +22,23 @@ import json
 import tomli
 from urllib.parse import urlparse
 
-from flat import Flat
 from idealista_scraper import IdealistaScraper, IdealistaPageParser
-
+from logger import LOGGER as logger
 
 
 def get_lambda_configs():
     """
     Opens the function_config.toml to gather the Locations to scrape from idealista
     """
-    with open("function_config.toml", mode="rb") as fb:
-        config = tomli.load(fb)
+    with open("function_config.toml", mode="rb") as config_file:
+        config = tomli.load(config_file)
     return config
 
 
 def lambda_handler(event, context):
-    
+    """
+    Reciever of the lambda invoke
+    """
     config = get_lambda_configs()
     flat_scaper_instance = IdealistaScraper()
     flat_parser_instance = IdealistaPageParser()
@@ -47,9 +48,7 @@ def lambda_handler(event, context):
         flats_list = get_flats_from_location(prepared_url,
                                             flat_scaper_instance,
                                             flat_parser_instance)
-        flats_json_list = flats_json_list + flats_list
-    
-    
+        flats_json_list = flats_json_list + flats_list        
     return {
         "statusCode": 200,
         "body": json.dumps(
@@ -58,6 +57,17 @@ def lambda_handler(event, context):
     }
 
 def get_flats_from_location(prepared_url, flat_scaper_instance, flat_parser_instance):
+    """
+    Requests and scrapes the flats from a given idealista url
+
+    Args:
+        prepared_url (str): url to scrape from
+        flat_scraper_instance (FlatScraper): scaper to call to extract the flats
+        flat_parser_instance (FlatParser): parser to parse the response
+    
+    Returns:
+        List[dict]: list of dictionaries including the flats 
+    """
     flat_json_list = []
     first_url = prepared_url
     response = flat_scaper_instance.get_request_with_custom_headers(first_url)
@@ -69,6 +79,8 @@ def get_flats_from_location(prepared_url, flat_scaper_instance, flat_parser_inst
         next_page = first_url + f"pagina-{i}.htm"
         response = flat_scaper_instance.get_request_with_custom_headers(next_page)
         latest_url = response.url
+        #  This condition prevents the scaping of the first page again if the search returns 
+        #  only one page.
         if latest_url==first_url and i==2:
             break
         parsed_response = flat_scaper_instance.parse_request_response(response.text)
@@ -77,6 +89,5 @@ def get_flats_from_location(prepared_url, flat_scaper_instance, flat_parser_inst
             parsed_url = urlparse(prepared_url)
             flat.location = parsed_url.path.split("/")[2:-1]
             flat_json_list.append(flat.to_json())
-    
     return flat_json_list
     

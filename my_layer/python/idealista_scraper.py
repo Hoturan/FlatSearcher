@@ -6,8 +6,8 @@ import requests
 from bs4 import BeautifulSoup, element
 
 from flat_scraper import FlatScraper
-from flat import *
-from logger import logger
+import flat as FlatModule
+from logger import LOGGER as logger
 
 class IdealistaScraper(FlatScraper):
     """ Contians all code for the scraping of the idealista webpage """
@@ -41,10 +41,12 @@ class IdealistaScraper(FlatScraper):
                 f"Exception {assertion_error}, url passed does not point to idealista  \
                 or does not include the appropiate format."
             )
+            raise AssertionError
 
     def check_if_parsed_response_is_correct(self, parsed_response: BeautifulSoup):
         """
-        Checks if a response is in the correct shape by checking if there are flats in the code ("articles")
+        Checks if a response is in the correct shape by checking if there are flats
+        in the code ("articles")
 
         Args:
             parsed_response (BeautifulSoup): BeautifulSoup containing an idealista http code.
@@ -73,7 +75,7 @@ class IdealistaScraper(FlatScraper):
         """
 
         try:
-            response = requests.get(url=url, headers=self.headers)
+            response = requests.get(url=url, headers=self.headers, timeout=10)
             return response
         except requests.exceptions.HTTPError as HTTPerror:
             logger.error(f"Exception {HTTPerror}, server responds with 404.")
@@ -100,41 +102,52 @@ class IdealistaScraper(FlatScraper):
 
 
 class IdealistaPageParser:
+    """ Contians all code for the parsing of the idealista webpage """
 
     item_tag_dictionary = {
-        ID: "item-link",
-        NAME: "item-link",
-        PRICE: "price-row",
-        PRICE_CURRENCY: "price-row",
-        NUMBER_OF_ROOMS: "item-detail-char",
-        SPACE: "item-detail-char",
-        LINK: "item-link",
-        DESCRIPTION: "item-description description",
-        SUMMARY: "item-detail-char",
+        FlatModule.ID: "item-link",
+        FlatModule.NAME: "item-link",
+        FlatModule.PRICE: "price-row",
+        FlatModule.PRICE_CURRENCY: "price-row",
+        FlatModule.NUMBER_OF_ROOMS: "item-detail-char",
+        FlatModule.SPACE: "item-detail-char",
+        FlatModule.LINK: "item-link",
+        FlatModule.DESCRIPTION: "item-description description",
+        FlatModule.SUMMARY: "item-detail-char",
     }
 
     item_section_dictionary = {
-        ID: "a",
-        PRICE: "div",
-        PRICE_CURRENCY: "div",
-        NAME: "a",
-        NUMBER_OF_ROOMS: "div",
-        SPACE: "div",
-        SUMMARY: "div",
-        LINK: "a",
-        DESCRIPTION: "div",
+        FlatModule.ID: "a",
+        FlatModule.PRICE: "div",
+        FlatModule.PRICE_CURRENCY: "div",
+        FlatModule.NAME: "a",
+        FlatModule.NUMBER_OF_ROOMS: "div",
+        FlatModule.SPACE: "div",
+        FlatModule.SUMMARY: "div",
+        FlatModule.LINK: "a",
+        FlatModule.DESCRIPTION: "div",
     }
 
     """ As this information is all under the same tag, I extract it as a list. This dictionary manages the location of the info"""
     details_tag_index_dictionary = {
-        NUMBER_OF_ROOMS: 1,
-        SPACE: 2,
-        SUMMARY: 3,
+        FlatModule.NUMBER_OF_ROOMS: 1,
+        FlatModule.SPACE: 2,
+        FlatModule.SUMMARY: 3,
     }
 
     def get_flats_from_parsed_response(
         self, parsed_response: BeautifulSoup
-    ) -> List[Flat]:
+    ) -> List[FlatModule.Flat]:
+        """
+        Creates a list of Flatsd given a BeautifulSoup oobject conainting the response of
+        a idealista page.
+
+        Args:
+            parsed_response (BeautifulSoup): contains the idealista html data
+        
+        Returns:
+            List[FlatModule.Flat]: List of found Flats
+        """
         flat_container_list = self.extract_flat_container(parsed_response)
         list_of_flats = self.create_list_of_flats_from_flat_container(
             flat_container_list
@@ -144,6 +157,16 @@ class IdealistaPageParser:
     def extract_flat_container(
         self, parsed_response: BeautifulSoup
     ) -> List[element.ResultSet]:
+        """
+        Gets all the "article" tags from a beautifulsoup object. Flats in idealista are included
+        under the article sections.
+
+        Args:
+            parsed_response (BeautifulSoup): contains the idealista html data
+        
+        Returns:
+            List[element.ResultSet]: List of found articles
+        """
         try:
             flat_container_list = parsed_response.findAll("article")
             assert len(flat_container_list) > 0
@@ -162,7 +185,7 @@ class IdealistaPageParser:
     def create_list_of_flats_from_flat_container(
         self,
         flat_container_list: List[element.ResultSet],
-    ) -> List[Flat]:
+    ) -> List[FlatModule.Flat]:
         list_of_flats = []
         for flat_container in flat_container_list:
             try:
@@ -172,23 +195,23 @@ class IdealistaPageParser:
                 continue
         return list_of_flats
 
-    def extract_items_from_flat(self, flat_container) -> Flat:
+    def extract_items_from_flat(self, flat_container) -> FlatModule.Flat:
         try:
-            id = self.get_data_from_tag(flat_container, ID)
-            price = self.get_data_from_tag(flat_container, PRICE)
+            id = self.get_data_from_tag(flat_container, FlatModule.ID)
+            price = self.get_data_from_tag(flat_container, FlatModule.RICE)
             price_currency = self.get_data_from_tag(
-                flat_container, PRICE_CURRENCY
+                flat_container, FlatModule.PRICE_CURRENCY
             )
-            name = self.get_data_from_tag(flat_container, NAME)
+            name = self.get_data_from_tag(flat_container, FlatModule.NAME)
             number_of_rooms = self.get_data_from_tag(
-                flat_container, NUMBER_OF_ROOMS
+                flat_container, FlatModule.NUMBER_OF_ROOMS
             )
-            space = self.get_data_from_tag(flat_container, SPACE)
-            summary = self.get_data_from_tag(flat_container, SUMMARY)
-            link = self.get_data_from_tag(flat_container, LINK)
-            description = self.get_data_from_tag(flat_container, DESCRIPTION)
+            space = self.get_data_from_tag(flat_container, FlatModule.SPACE)
+            summary = self.get_data_from_tag(flat_container, FlatModule.SUMMARY)
+            link = self.get_data_from_tag(flat_container, FlatModule.LINK)
+            description = self.get_data_from_tag(flat_container, FlatModule.DESCRIPTION)
 
-            flat = Flat(
+            flat = FlatModule.Flat(
                 id=id,
                 price=price,
                 price_currency=price_currency,
@@ -215,13 +238,13 @@ class IdealistaPageParser:
             return found_data.text.split("\n")[
                 self.details_tag_index_dictionary[flat_item]
             ]
-        if flat_item == PRICE_CURRENCY:
+        if flat_item == FlatModule.PRICE_CURRENCY:
             return self.get_currency_from_price_string(found_data.text)
-        if flat_item == PRICE:
+        if flat_item == FlatModule.PRICE:
             return self.get_value_from_price_string(found_data.text)
-        if flat_item == LINK:
+        if flat_item == FlatModule.LINK:
             return found_data["href"]
-        if flat_item == ID:
+        if flat_item == FlatModule.ID:
             # splits the string "/inmueble/98978138/" and takes the id
             return found_data["href"].split("/")[2]
         
