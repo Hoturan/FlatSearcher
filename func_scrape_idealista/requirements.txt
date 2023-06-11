@@ -2,3 +2,4 @@ beautifulsoup4==4.12.2
 requests==2.31.0
 pytest==7.3.1
 pandas==2.0.2
+dynaconf==3.1.12

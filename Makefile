@@ -26,5 +26,12 @@ lint:
 	@echo "Testing code style PEP8 and running Linter"
 	( \
 		. ${VENV_BIN}/activate ; \
-		${VENV_BIN}/python -m pylint src ; \
+		${VENV_BIN}/python -m pylint func_scrape_idealista lambda_layers ; \
+	)
+
+build:
+	@echo "Building lambda function & layers"
+	(\
+		. ${VENV_BIN}/activate ; \
+	    sam build ; \
 	)
