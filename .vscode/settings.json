@@ -1,9 +1,10 @@
 {
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
-    },
-    "python.formatting.provider": "black",
+    "python.formatting.provider": "none",
+    "editor.formatOnSave": true,
     "python.analysis.extraPaths": [
         "./my_layer/python/"
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    }
 }

@@ -2,7 +2,7 @@ import pytest
 from unittest import mock
 from unittest.mock import patch
 
-from lambda_layers.python.idealista_scraper import IdealistaScraper
+from idealista_scraper import IdealistaScraper
 from unit_and_acceptance_tests.unit.mock_request_response import MockRequestResponse
 import tests.test_actions
 

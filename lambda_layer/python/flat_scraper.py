@@ -15,26 +15,24 @@ class FlatScraper(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def scrape_link(self, url: str) -> BeautifulSoup:
         """
-        Perfoms a call to the passed url and returns a beautifulsoup object with the 
+        Perfoms a call to the passed url and returns a beautifulsoup object with the
         found contents.
 
         Args:
             url (str): url pointing to a flat website
-        
+
         Returns:
             BeautifulSoup: Parsed html contents
         """
-        pass
 
-    @abs.abstractmethos
+    @abc.abstractmethod
     def parse_request_response(self, response_text: str) -> BeautifulSoup:
         """
         Parses a request response text into a beautifulsoup object.
 
         Args:
             response_text (str): response text
-        
+
         Returns:
             BeautifulSoup: Parsed html contents
         """
-        pass

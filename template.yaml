@@ -22,6 +22,6 @@ Resources:
     Properties:
       LayerName: shared_modules
       Description: Dependencies for SAM lambda functions
-      ContentUri: my_layer/.
+      ContentUri: lambda_layer/.
       CompatibleRuntimes:
         - python3.10

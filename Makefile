@@ -26,7 +26,7 @@ lint:
 	@echo "Testing code style PEP8 and running Linter"
 	( \
 		. ${VENV_BIN}/activate ; \
-		${VENV_BIN}/python -m pylint func_scrape_idealista my_layer ; \
+		${VENV_BIN}/python -m pylint func_scrape_idealista my_layer --disable=import-error ; \
 	)
 
 build:
